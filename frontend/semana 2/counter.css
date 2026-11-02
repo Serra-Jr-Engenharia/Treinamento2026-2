@@ -43,14 +43,6 @@ main > article {
   text-align: center;
 }
 
-main > ul {
-  list-style-type: none;
-  padding-inline-start: 19px;
-  li {
-    margin: 7px;
-  }
-}
-
 #buttons {
   width: 100%;
   display: flex;
