@@ -1,0 +1,82 @@
+*{
+    margin: 0;
+    padding: 0;
+    
+}
+body{
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Poppins;
+    line-height: 100%;
+    letter-spacing: 0%;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 16px;
+    padding-top: 16px;
+    margin-bottom: 1px;
+    border-bottom: 1px;
+    color: white;
+    font-weight: 700;
+    font-size: 24px;
+}
+#caixa_grande{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 502px;
+    width: 763px;
+}
+#laranja{
+    background-color: #FF6600;
+    border-radius: 22px 22px 0 0;
+    display: flex;
+    align-items:center;
+    justify-content:space-around;
+    height: 81px;
+}
+img{
+    height: 50px;
+    width: 51px;
+    background-color: white;
+}
+#azul{
+    font-family: Poppins;
+    font-weight: 500;
+    font-style: Bold;
+    font-size: 32px;
+    background-color: #001830;
+    flex:1;
+    border-radius: 0 0 22px 22px;
+    display: flex;
+    justify-content: center
+    flex-direction: column;
+}
+form{ width: 668px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    font-size: 16px;
+}
+label{
+    padding:  8px 8px 0 0;
+    align-self: flex-start;
+}
+input{
+    border-radius: 22px;
+    width:668px;
+    height: 48px;
+}
+#btncriar{
+    height: 58px;
+    width: 228px;
+    background-color: #FF6600;
+    color: white;
+    font-family: Poppins;
+    font-weight: 700;
+    font-size: 24px;
+
+}

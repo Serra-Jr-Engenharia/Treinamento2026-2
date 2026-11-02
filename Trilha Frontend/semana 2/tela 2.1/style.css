@@ -1,0 +1,66 @@
+*{
+    margin: 0;
+    padding: 0;
+    
+}
+body{
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Poppins;
+    line-height: 100%;
+    letter-spacing: 0%;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 16px;
+    padding-top: 16px;
+    margin-bottom: 1px;
+    border-bottom: 1px;
+    color: white;
+    font-weight: 700;
+    font-size: 24px;
+}
+#caixa_grande{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 221px;
+    width: 763px;
+}
+#laranja{
+    background-color: #FF6600;
+    height: 64px;
+    border-radius: 22px 22px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#azul{
+    font-family: Poppins;
+    font-weight: 500;
+    font-style: Bold;
+    font-size: 64px;
+    background-color: #001830;
+    flex:1;
+    border-radius: 0 0 22px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#botoes{
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+}
+button{
+    width: 228px;
+    height: 58px;
+    background-color: #FF6600;
+    border-radius: 22px;
+    color: white;
+    font-family: Poppins;
+    font-family: Poppins;
+    font-weight: 700;
+    font-size: 24px;
+}
