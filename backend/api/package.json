@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "dev": "tsx watch src/server.ts"
+  },
   "dependencies": {
     "fastify": "^5.12.7"
   },
