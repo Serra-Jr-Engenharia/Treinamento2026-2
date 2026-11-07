@@ -1,61 +1,83 @@
 import Fastify from 'fastify';
-import { randomUUID } from 'node:crypto';
+import { PrismaClient } from '@prisma/client';
 
 const app = Fastify();
-
-interface Sala {
-    id: string;
-    nome: string;
-    capacidade: number;
-    local: string;
-    descricao: string;
-}
-
-let salas: Sala[] = [];
+const prisma = new PrismaClient(); 
 
 app.get('/room', async (request, reply) => {
+    const salas = await prisma.room.findMany({
+        include: {
+            logs: {
+                orderBy: { dataHora: 'desc' } 
+            }
+        }
+    });
     return salas;
 });
 
 app.post('/room', async (request, reply) => {
-    const { nome, capacidade, local, descricao } = request.body as Omit<Sala, 'id'>;
+    const { nome, capacidade, local, descricao } = request.body as any;
     
-    const novaSala: Sala = {
-        id: randomUUID(), 
-        nome,
-        capacidade,
-        local,
-        descricao
-    };
+    const novaSala = await prisma.room.create({
+        data: {
+            nome,
+            capacidade,
+            local,
+            descricao,
+
+            logs: {
+                create: {
+                    acao: "CRIACAO",
+                    detalhes: "Sala cadastrada no sistema"
+                }
+            }
+        }
+    });
     
-    salas.push(novaSala);
     return reply.status(201).send(novaSala);
 });
 
 app.put('/room/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const { nome, capacidade, local, descricao } = request.body as Omit<Sala, 'id'>;
+    const { nome, capacidade, local, descricao } = request.body as any;
     
-    const salaIndex = salas.findIndex(sala => sala.id === id);
-    
-    if (salaIndex === -1) {
+    // Verifica se a sala existe no banco
+    const salaExiste = await prisma.room.findUnique({ where: { id } });
+    if (!salaExiste) {
         return reply.status(404).send({ erro: 'Sala não encontrada' });
     }
     
-    salas[salaIndex] = { ...salas[salaIndex], nome, capacidade, local, descricao };
-    return salas[salaIndex];
+    const salaAtualizada = await prisma.room.update({
+        where: { id },
+        data: {
+            nome,
+            capacidade,
+            local,
+            descricao,
+            logs: {
+                create: {
+                    acao: "ATUALIZACAO",
+                    detalhes: "Dados da sala foram alterados"
+                }
+            }
+        }
+    });
+    
+    return salaAtualizada;
 });
 
 app.delete('/room/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
     
-    const salaIndex = salas.findIndex(sala => sala.id === id);
-    
-    if (salaIndex === -1) {
+    const salaExiste = await prisma.room.findUnique({ where: { id } });
+    if (!salaExiste) {
         return reply.status(404).send({ erro: 'Sala não encontrada' });
     }
     
-    salas.splice(salaIndex, 1);
+    await prisma.room.delete({
+        where: { id }
+    });
+    
     return reply.status(204).send(); 
 });
 

@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id         String    @id @default(uuid())
+  nome       String
+  capacidade Int
+  local      String
+  descricao  String
+  logs       RoomLog[]
+}
+
+model RoomLog {
+  id        String   @id @default(uuid())
+  acao      String   
+  detalhes  String   
+  dataHora  DateTime @default(now()) 
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
