@@ -10,10 +10,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "fastify": "^5.12.7",
+    "@prisma/adapter-mariadb": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "typescript": "^7.0.2"
   },
   "devDependencies": {
+    "fastify": "^5.12.8",
+    "prisma": "^7.10.1",
     "tsx": "^4.23.15"
   }
 }

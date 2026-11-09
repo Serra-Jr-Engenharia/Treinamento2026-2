@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>semana22 </title>
+    <link rel="stylesheet"  href="style.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <div id="caixa_grande">
+        
+        <div>
+            <form  onsubmit="buscar(event)">
+                <label for="CEP">CEP:</label>
+                    <input type="text" id="CEP" placeholder="CEP">
+                    <input type="submit" id="btn" value="Pesquisar">
+            </form>
+        
+        <div id="info">
+            <div id="laranja">
+                CEP exemplo123
+            </div>
+
+            <div id="azul">
+                <ul>
+                    <li id="Log">Logradouro:</li>
+                    <li id="Comp">Complemento:</li>
+                    <li id="Bai">Bairro:</li>
+                    <li id="Loc">Localidade:</li>
+                    <li id="UF">UF:</li>
+                    <li id="Est">Estado:</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
