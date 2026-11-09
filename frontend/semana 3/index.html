@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Semana 3: CEP</title>
+		<link href="./style.css" rel="stylesheet">
+		<script src="./script.js" defer></script>
+		<!-- fonte poppins -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+		<!-- padroniza o css entre navegadores -->
+		<link href="https://necolas.github.io/normalize.css/8.0.1/normalize.css" rel="stylesheet">
+	</head>
+	<body>
+		<div id="mainbox">
+			<div id="buttons">
+				<input type="number" placeholder="CEP" id="cep">
+				<button id="submit">Pesquisar</button>
+			</div>
+			<br>
+			<main>
+				<header>CEP <span id="subcep"></span></header>
+				<article>
+					<p>Logradouro: <span id="logradouro"></span></p>
+					<p>Complemento: <span id="complemento"></span></p>
+					<p>Bairro: <span id="bairro"></span></p>
+					<p>Localidade: <span id="localidade"></span></p>
+					<p>UF: <span id="uf"></span></p>
+					<p>Estado:<span id="estado"></span></p>
+				</article>
+			</main>
+		</div>
+	</body>
+</html>
