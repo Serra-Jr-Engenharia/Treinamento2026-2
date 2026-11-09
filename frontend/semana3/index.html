@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta CEP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="container">
+        <div class="search-group">
+            <input type="text" id="input-cep" placeholder="CEP" maxlength="9">
+            <button id="btn-pesquisar">Pesquisar</button>
+        </div>
+
+        <div class="result-card">
+            <div class="caixa-top">
+                <h2>CEP <span id="cep-titulo"></span></h2>
+            </div>
+            
+            <div class="caixa-botton">
+                <p>Logradouro: <span id="logradouro"></span></p>
+                <p>Complemento: <span id="complemento"></span></p>
+                <p>Bairro: <span id="bairro"></span></p>
+                <p>Localidade: <span id="localidade"></span></p>
+                <p>UF: <span id="uf"></span></p>
+                <p>Estado: <span id="estado"></span></p>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-erro" class="modal-overlay">
+        <div class="modal-box">
+            <h3>CEP Inválido!</h3>
+            <p id="mensagem-erro">Não foi possível encontrar os dados do CEP informado.</p>
+            <button id="btn-fechar-modal">Fechar</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
