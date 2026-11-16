@@ -1,16 +1,32 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "../lib/prisma";
+import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import z from "zod";
 
-interface Room {
-    id: number;
-    quartos: number;
-    preco: number;
-}
 
-export default async function RoomController(app: FastifyInstance) {
+export  const RoomController:FastifyPluginAsyncZod = async app =>{
 
-    app.post('/room', async (request, reply) => {
-        const { quartos, preco } = request.body as Room;
+    app.post('/room',{
+        schema:{
+            body: z.object({
+                quartos: z.number(),
+                preco:  z.number()
+            }),
+        
+        response: {
+            201: z.object({
+                id:      z.number(),
+                quartos: z.number(),
+                preco:   z.number(),
+            }),
+            500: z.object({
+                error: z.string(),
+            })
+        }
+        }
+    },
+    async (request, reply) => {
+        const { quartos, preco } = request.body
 
         if (!quartos || !preco ) {
             return reply.status(400).send({ error: 'preencha todos os campos' });
@@ -29,7 +45,20 @@ export default async function RoomController(app: FastifyInstance) {
         }
     });
 
-    app.get('/room', async (_, reply) => {
+    app.get('/room', {
+        schema:{
+            response: {
+                200: z.array(z.object({
+                    id:      z.number(),
+                    quartos: z.number(),
+                    preco:   z.number()
+                })),
+                500: z.object({
+                    error: z.string()
+                })
+            }
+        }
+    } , async (_, reply) => {
         try {
             const rooms = await prisma.room.findMany();
             return reply.send(rooms);
@@ -38,17 +67,39 @@ export default async function RoomController(app: FastifyInstance) {
         }
     });
 
-    app.put('/room/:id', async (request, reply) => {
-        const { id } = request.params as { id: string };
-        const { quartos, preco } = request.body as Room;
+    app.put('/room/:id',{
+        schema:{
+            params: z.object({
+                id: z.string()
+            }),
+            body: z.object({
+                quartos: z.number(),
+                preco: z.number()
+            }),
+            response:{
+                200: z.object({
+                    id:      z.number(),
+                    quartos: z.number(),
+                    preco:   z.number()
+                }),
+                500: z.object({
+                    error: z.string()
+                })
+            }
 
+        }
+    }, async (request, reply) => {
+        const { id } = request.params
+        const { quartos, preco } = request.body
+
+        const roomid = parseInt(id)
         if (!quartos || !preco ) {
             return reply.status(400).send({ error: 'preencha todos os campos' });
         }
 
         try {
             const updatedRoom = await prisma.room.update({
-                where: { id: parseInt(id) },
+                where: { id: roomid },
                 data: { quartos, preco }
             });
             return reply.status(200).send(updatedRoom);
@@ -57,12 +108,28 @@ export default async function RoomController(app: FastifyInstance) {
         }
     });
 
-    app.delete('/room/:id', async (request, reply) => {
-        const { id } = request.params as { id: string };
+    app.delete('/room/:id',{
+        schema:{
+            params: z.object({
+                id: z.string()
+            }),
+            response:{
+                200: z.object({
+                    message: z.string()
+                }),
+                500: z.object({
+                    error: z.string()
+                })
+            }
+        }
+    }, async (request, reply) => {
+        const { id } = request.params
+        
+        const roomid = parseInt(id)
 
         try {
             await prisma.room.delete({
-                where: { id: parseInt(id) }
+                where: { id: roomid }
             });
             return reply.status(200).send({ message: 'sala deletada' });
         } catch {
