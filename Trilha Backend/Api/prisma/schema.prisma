@@ -12,3 +12,10 @@ model room {
   quartos Int
   preco   Float
 }
+
+model user{
+  id      Int       @id @default(autoincrement())
+  Nome    String    @unique
+  senha   String
+  
+}
