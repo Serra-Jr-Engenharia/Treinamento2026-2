@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       String   @id @default(uuid())
+  nome     String
+  email    String   @unique
+  senha    String
+  criadoEm DateTime @default(now())
+}
+
 model Room {
   id         String    @id @default(uuid())
   nome       String
@@ -17,10 +25,10 @@ model Room {
 }
 
 model RoomLog {
-  id        String   @id @default(uuid())
-  acao      String   
-  detalhes  String   
-  dataHora  DateTime @default(now()) 
-  roomId    String
-  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  id       String   @id @default(uuid())
+  acao     String   
+  detalhes String   
+  dataHora DateTime @default(now()) 
+  roomId   String
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }

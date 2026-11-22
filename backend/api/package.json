@@ -5,11 +5,14 @@
     "prisma": "prisma"
   },
   "dependencies": {
+    "@fastify/jwt": "^10.2.8",
+    "bcryptjs": "^3.0.3",
     "fastify": "^5.12.7",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@prisma/client": "5.15.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^26.6.6",
     "prisma": "5.15.0",
     "tsx": "^4.23.15",
