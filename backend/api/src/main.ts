@@ -6,29 +6,16 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
+import { IdSchema, SalaSchema, UserSchema, withFallback } from "./common.ts";
+import { hashPass, verify } from "./pass.ts";
+import fastifyJwt from "@fastify/jwt";
 
-type PartialAndUndefinable<R> = {
-  [K in keyof R]?: R[K] | undefined;
-};
-
-const withFallback = <R extends Record<keyof any, any>>(
-  priority: PartialAndUndefinable<R>,
-  fallback: R,
-): R => {
-  for (const key in fallback) priority[key] ||= fallback[key];
-  return priority as R; // Isso é seguro, a partir do momento que definimos todas chaves ausentes em priority com chaves respectives em fallback.
-};
-
-const SalaSchema = z.object({
-  nome: z.string().min(5).max(20),
-  descricao: z.string(),
-  capacidade: z.number().min(2).max(100),
-  local: z.string(),
-});
-
-const IdSchema = z.object({
-  id: z.uuid(),
-});
+// O fastify não permite o uso nativo de decoradores no typescript sem uma declaração prévia.
+declare module "fastify" {
+  interface FastifyInstace {
+    auth: (req: FastifyRequest, rep: FastifyReply) => Promise<void> | void;
+  }
+}
 
 const fastify = Fastify({
   logger: true,
@@ -36,6 +23,74 @@ const fastify = Fastify({
   .withTypeProvider<ZodTypeProvider>()
   .setSerializerCompiler(serializerCompiler)
   .setValidatorCompiler(validatorCompiler);
+
+fastify.register(fastifyJwt, {
+  secret: process.env["JWT_KEY"]!,
+  sign: { expiresIn: "1h" },
+});
+fastify.addHook("preHandler", async (req, reply) => {
+  if (req.url.startsWith("/room")) {
+    try {
+      await req.jwtVerify();
+    } catch (_) {
+      reply.code(401).send({ message: "Não autorizado" });
+    }
+  }
+});
+
+// Lógica para usuários
+
+fastify.post(
+  "/user",
+  {
+    schema: {
+      body: UserSchema,
+      response: {
+        201: z.object({ message: z.literal("OK"), id: z.string() }),
+      },
+    },
+  },
+  async ({ body: { nome, email, senha } }, reply) => {
+    const { id } = await db.user.create({
+      data: {
+        nome,
+        email,
+        senha: await hashPass(senha),
+      },
+    });
+    reply.status(201).send({ message: "OK", id });
+  },
+);
+
+fastify.post(
+  "/login",
+  {
+    schema: {
+      body: z.object({ email: z.email(), senha: z.string() }),
+      response: {
+        201: z.object({ token: z.jwt() }),
+        400: z.object({ message: z.string() }),
+      },
+    },
+  },
+  async ({ body: { email, senha } }, reply) => {
+    const user = await db.user.findUnique({ where: { email } });
+    if (user && (await verify(senha, user.senha))) {
+      const token = fastify.jwt.sign({
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+      });
+      reply.status(201).send({ token });
+    } else {
+      reply.code(400).send({
+        message: "As informações de login não constam ou estão incorretas.",
+      });
+    }
+  },
+);
+
+// Lógica para as salas
 
 fastify.get(
   "/room",

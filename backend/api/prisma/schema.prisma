@@ -21,3 +21,11 @@ model Sala {
 
   @@map("salas")
 }
+
+model User {
+  id String @id @default(uuid())
+  senha String
+  email String @unique
+  nome String
+  @@map("users")
+}
