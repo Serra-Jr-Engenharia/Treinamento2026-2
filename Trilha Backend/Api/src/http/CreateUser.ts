@@ -2,29 +2,17 @@ import { FastifyInstance } from "fastify";
 import { prisma } from "../lib/prisma";
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import z from "zod";
+import { hashpassword } from "../utils/hash";
 
 export  const CreateUser:FastifyPluginAsyncZod = async app =>{
-    app.post('/user',{
-            schema:{
-                body: z.object({
-                    Nome: z.string(),
-                    senha: z.string()
-                }),
-            
-            response: {
-                201: z.object({
-                    id:      z.number(),
-                    Nome:    z.string(),
-                    senha:   z.string(),
-                }),
-                500: z.object({
-                    error: z.string(),
-                })
-            }
-            }
-        },
-        async (request, reply) => {
-            const { Nome, senha } = request.body
+
+    const CreateUserSchema = z.object({
+        Nome: z.string(),
+        senha: z.string(),
+    })
+
+    app.post('/user', async (request, reply) => {
+            const { Nome, senha } = CreateUserSchema.parse(request.body)
     
             if (!Nome || !senha ) {
                 return reply.status(400).send({ error: 'preencha todos os campos' });
@@ -37,6 +25,9 @@ export  const CreateUser:FastifyPluginAsyncZod = async app =>{
             if(existUser){
                 return reply.status(400).send({error: 'Usuario ja existe'})
             }
+
+            const hashedpassword = await hashpassword(senha)
+
             try {
                 const newUser = await prisma.user.create({
                     data: { 

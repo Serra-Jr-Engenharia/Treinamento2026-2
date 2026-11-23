@@ -3,8 +3,17 @@ import { prisma } from "../lib/prisma";
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import z from "zod";
 
-
 export  const RoomController:FastifyPluginAsyncZod = async app =>{
+
+    app.addHook("onRequest", async (request,reply)=> {
+        try{
+            await request.jwtVerify()
+        }
+        catch( error ) {
+            return reply.status(401).send({ error })
+        }
+
+    })
 
     app.post('/room',{
         schema:{
