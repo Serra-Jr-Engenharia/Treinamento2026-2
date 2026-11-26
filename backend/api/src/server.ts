@@ -9,6 +9,33 @@ import {
   loginSchema,
   updatePasswordSchema,
 } from './auth.schema.js';
+import {
+  criarReservaSchema,
+  atualizarReservaSchema,
+  reservaIdParamSchema,
+  roomIdParamSchema,
+} from './reserva.schema.js';
+import {
+  ReservaErro,
+  criarReservaNoBanco,
+  cancelarReservaNoBanco,
+  alterarHorarioReservaNoBanco,
+  buscarReservasDoUsuario,
+  listarReservasPorSala,
+} from './reserva.service.js';
+
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    payload: {
+      sub: string;
+      email: string;
+    };
+    user: {
+      sub: string;
+      email: string;
+    };
+  }
+}
 
 const app = Fastify();
 const prisma = new PrismaClient();
@@ -40,12 +67,18 @@ app.setErrorHandler((error, request, reply) => {
     });
   }
 
+  if (error instanceof ReservaErro) {
+    return reply.status(error.statusCode).send({
+      sucesso: false,
+      mensagem: error.message,
+    });
+  }
+
   return reply.status(500).send({
     sucesso: false,
     mensagem: 'Erro interno no servidor.',
   });
 });
-
 
 app.post('/auth/register', async (request, reply) => {
   try {
@@ -136,7 +169,6 @@ app.post('/auth/login', async (request, reply) => {
   }
 });
 
-
 app.patch('/auth/password', { preHandler: [autenticarUsuario] }, async (request, reply) => {
   try {
     const { senhaAtual, novaSenha } = updatePasswordSchema.parse(request.body);
@@ -177,7 +209,6 @@ app.patch('/auth/password', { preHandler: [autenticarUsuario] }, async (request,
     });
   }
 });
-
 
 app.get('/room', { preHandler: [autenticarUsuario] }, async (request, reply) => {
   try {
@@ -303,6 +334,117 @@ app.delete('/room/:id', { preHandler: [autenticarUsuario] }, async (request, rep
     return reply.status(500).send({
       sucesso: false,
       mensagem: 'Erro ao remover a sala.',
+    });
+  }
+});
+
+// 1. Criar uma reserva (bloqueia conflito de dia e horário na mesma sala)
+app.post('/reservations', { preHandler: [autenticarUsuario] }, async (request, reply) => {
+  try {
+    const { roomId, dataInicio, dataFim } = criarReservaSchema.parse(request.body);
+    const reserva = await criarReservaNoBanco(
+      prisma,
+      request.user.sub,
+      roomId,
+      dataInicio,
+      dataFim
+    );
+
+    return reply.status(201).send({
+      sucesso: true,
+      mensagem: 'Reserva criada com sucesso.',
+      dados: reserva,
+    });
+  } catch (error) {
+    if (error instanceof ZodError || error instanceof ReservaErro) throw error;
+    return reply.status(500).send({
+      sucesso: false,
+      mensagem: 'Erro ao criar reserva.',
+    });
+  }
+});
+
+// 2. Buscar reservas do usuário autenticado
+app.get('/reservations/me', { preHandler: [autenticarUsuario] }, async (request, reply) => {
+  try {
+    const reservas = await buscarReservasDoUsuario(prisma, request.user.sub);
+
+    return reply.status(200).send({
+      sucesso: true,
+      mensagem: 'Reservas do usuário listadas com sucesso.',
+      dados: reservas,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      sucesso: false,
+      mensagem: 'Erro ao buscar reservas do usuário.',
+    });
+  }
+});
+
+// 3. Alterar data e horário da reserva (bloqueia conflito de dia e horário)
+app.patch('/reservations/:id', { preHandler: [autenticarUsuario] }, async (request, reply) => {
+  try {
+    const { id } = reservaIdParamSchema.parse(request.params);
+    const { dataInicio, dataFim } = atualizarReservaSchema.parse(request.body);
+
+    const reservaAtualizada = await alterarHorarioReservaNoBanco(
+      prisma,
+      id,
+      request.user.sub,
+      dataInicio,
+      dataFim
+    );
+
+    return reply.status(200).send({
+      sucesso: true,
+      mensagem: 'Data e horário da reserva atualizados com sucesso.',
+      dados: reservaAtualizada,
+    });
+  } catch (error) {
+    if (error instanceof ZodError || error instanceof ReservaErro) throw error;
+    return reply.status(500).send({
+      sucesso: false,
+      mensagem: 'Erro ao atualizar a reserva.',
+    });
+  }
+});
+
+// 4. Cancelar uma reserva
+app.delete('/reservations/:id', { preHandler: [autenticarUsuario] }, async (request, reply) => {
+  try {
+    const { id } = reservaIdParamSchema.parse(request.params);
+    await cancelarReservaNoBanco(prisma, id, request.user.sub);
+
+    return reply.status(200).send({
+      sucesso: true,
+      mensagem: 'Reserva cancelada com sucesso.',
+    });
+  } catch (error) {
+    if (error instanceof ZodError || error instanceof ReservaErro) throw error;
+    return reply.status(500).send({
+      sucesso: false,
+      mensagem: 'Erro ao cancelar a reserva.',
+    });
+  }
+});
+
+// 5. Fator de inovação: listar reservas por sala
+app.get('/rooms/:roomId/reservations', { preHandler: [autenticarUsuario] }, async (request, reply) => {
+  try {
+    const { roomId } = roomIdParamSchema.parse(request.params);
+    const reservas = await listarReservasPorSala(prisma, roomId);
+
+    return reply.status(200).send({
+      sucesso: true,
+      mensagem: 'Reservas da sala listadas com sucesso.',
+      dados: reservas,
+    });
+  } catch (error) {
+    if (error instanceof ZodError || error instanceof ReservaErro) throw error;
+    return reply.status(500).send({
+      sucesso: false,
+      mensagem: 'Erro ao listar reservas da sala.',
     });
   }
 });

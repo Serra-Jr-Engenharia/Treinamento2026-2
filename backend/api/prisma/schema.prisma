@@ -8,27 +8,40 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(uuid())
-  nome     String
-  email    String   @unique
-  senha    String
-  criadoEm DateTime @default(now())
+  id           String        @id @default(uuid())
+  nome         String
+  email        String        @unique
+  senha        String
+  criadoEm     DateTime      @default(now())
+  reservations Reservation[]
 }
 
 model Room {
-  id         String    @id @default(uuid())
-  nome       String
-  capacidade Int
-  local      String
-  descricao  String
-  logs       RoomLog[]
+  id           String        @id @default(uuid())
+  nome         String
+  capacidade   Int
+  local        String
+  descricao    String
+  logs         RoomLog[]
+  reservations Reservation[]
 }
 
 model RoomLog {
   id       String   @id @default(uuid())
-  acao     String   
-  detalhes String   
-  dataHora DateTime @default(now()) 
+  acao     String
+  detalhes String
+  dataHora DateTime @default(now())
   roomId   String
   room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model Reservation {
+  id         String   @id @default(uuid())
+  dataInicio DateTime
+  dataFim    DateTime
+  criadoEm   DateTime @default(now())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId     String
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
